@@ -2015,6 +2015,85 @@ void applicationLoop() {
 			sphereCollider.render(matrixCollider);
 		}
 
+		//Prueba de colisiones
+/*
+		std::map<std::string, bool> collisionDetector;
+
+		std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator 
+		itSBB = collidersSBB = colliderSBB.begin();
+		for(;itSBB != collidersSBB.end(); itSBB++){
+			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator
+			jtSBB = collidersSBB = colliderSBB.begin();
+			for(;jtSBB != collidersSBB.end(); jtSBB++){
+				if(testSphereSphereIntersection(
+					std::get<0>(itSBB->second), std::get<0>(jtSBB->second))){
+						std::cout << "Colision entre " << itSBB->first << " y "
+							<< jtSBB->first << std::endl;
+						isCollision = true;
+					}
+			}
+			addOrUpdateCollisionDetection(collisionDetector, itSBB->first, isCollision);
+		}		
+
+		std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4> >::iterator 
+		itOBB = collidersOBB = colliderOBB.begin();
+		for(;itOBB != collidersOBB.end(); itOBB++){
+			std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4> >::iterator
+			jtOBB = collidersOBB = colliderOBB.begin();
+			for(;jtOBB != collidersOBB.end(); jtOBB++){
+				if(itOBB != jtOBB
+						&& testOBBOBB(std::get<0>(it->second),
+								std::get<0>(jt->second)){
+						std::cout << "Colision entre " << itOBB->first << " y "
+							<< jtOBB->first << std::endl;
+						isCollision = true;
+					}
+			}
+			addOrUpdateCollisionDetection(collisionDetector, itOBB->first, isCollision);
+		}		
+
+		itOBB = collidersOBB = colliderOBB.begin();
+		for(;itOBB != collidersOBB.end(); itOBB++){
+			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator
+			jtSBB = collidersSBB = colliderSBB.begin();
+			bool isCollision = false;
+			for(;jtSBB != collidersSBB.end(); jtSBB++){
+				if(testSphereSphereIntersection(
+					std::get<0>(itSBB->second), std::get<0>(jtSBB->second))){
+						std::cout << "Colision entre " << jtSBB->first << " y "
+							<< itOBB->first << std::endl;
+						std::cout << "Colision entre " << itOBB->first << " y "
+							<< jtSBB->first << std::endl;
+						isCollision = true;
+						addOrUpdateCollisionDetection(collisionDetector, jtSBB->first, isCollision);		
+					}
+			}
+			addOrUpdateCollisionDetection(collisionDetector, itOBB->first, isCollision);
+		}
+
+		std::map<std::string, bool>::iterator itCollider = collisionDetector.begin();
+		for(; isCoLLider != collisionDetector.end(); itCollder++){
+			std::map<std::string, std::tupla<AbstractModel::SBB, glm::mat4, glm::matd4>>::iterator
+				SBBBusqueda = collidersSBB.find(itCollider->first);
+			std::map<std::string, std::tupla<AbstractModel::OBB, glm::mat4, glm::matd4>>::iterator
+				OBBBusqueda = collidersOBB.find(itCollider->first);
+			if(SBBBusqueda != collidersSBB.end()){
+				if(!itCollider->second){
+					addOrUpdateColliders(collidersSBB, itCollider->first);
+				}
+			}else if(OBBBusqueda != collidersOBB.end()){
+				if(!itCollider->second){
+					addOrUpdateColliders(collidersOBB, itCollider->first);
+				}else{
+					if(itCollider->first.compare("mayow")==0){
+						modelMatrixMayow = std::get<1>(OBBBusqueda->second);
+					}
+				}
+			}
+		}
+
+
+*/
 		// Test Collisions
 		
 		for (std::map<std::string,
@@ -2119,7 +2198,16 @@ void applicationLoop() {
 			}
 
 		}
+		
 
+		/*
+		for(itOBB = collidersOBB.begin(), itOBB != collidersOBB.begin()){
+
+			if(raySphereIntersect(ori,targetRay,rayDirection,std::get<0>(jt->second),tRint)){
+				std::cout<<"Colision del rayo con el modelo"<< itOBB->first<<std::endl;
+			}
+		}
+		*/
 
 
 

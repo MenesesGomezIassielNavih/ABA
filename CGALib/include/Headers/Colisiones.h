@@ -209,6 +209,54 @@ bool testOBBOBB(AbstractModel::OBB a, AbstractModel::OBB b){
 
 	return true;
 }
+bool testSLABPLane(float p, float v, float min, float max, float &tmin, float &tmax) {
+    if (fabs(v) <= 0.01) {
+        return p >= min && p <= max;
+    }
+    float odd = 1 / v;
+    float t1 = (min - p) * odd;
+    float t2 = (max - p) * odd;
+    if (t1 > t2) {
+        float aux = t1;
+        t1 = t2;
+        t2 = aux;
+    }
+    if (t1 > tmin) {
+        tmin = t1;
+    }
+    if (t2 < tmax) {
+        tmax = t2;
+    }
+    if (tmin > tmax)
+        return false;
+    return true;
+}
+
+bool intersectSegmentAABB(glm::vec3 o, glm::vec3 t, AbstractModel::AABB collider) {
+    float tmin = -FLT_MAX;
+    float tmax = FLT_MAX;
+    glm::vec3 d = glm::normalize(t - o);
+    if (!testSLABPLane(o.x, d.x, collider.mins.x, collider.maxs.x, tmin, tmax))
+        return false;
+    if (!testSLABPLane(o.y, d.y, collider.mins.y, collider.maxs.y, tmin, tmax))
+        return false;
+    if (!testSLABPLane(o.z, d.z, collider.mins.z, collider.maxs.z, tmin, tmax))
+        return false;
+    if (tmin >= 0 && tmin <= glm::length(t - o))
+        return true;
+    return false;
+}
+/*
+bool testRayOBB(glm::vec3 o, glm::vec3 t, AbstractModel::oBB obb){
+	glm::quat qinv = glm::inverse(obb.u);
+	glm::vec3 oTmp = qinv * o;
+	glm::vec3 tTmp = qinv * t;
+	glm::vec3 cAABB = qinv * obb.c;
+	glm::vec3 mins = cAABB - obb.e;
+	glm::vec3 maxs = cAABB + obb.e;
+	AbstractModel::AABB aabb(mins, maxs);
+	return intersectSegmentAABB(oTmp, tTmp, aabb);
+}*/
 
 
 #endif /* COLISIONES_H_ */
