@@ -113,7 +113,8 @@ public:
 		GLint id = this->getUniformLocation(strVariable);
 		glUniform4f(id, value1, value2, value3, value4);
 	}
-
+	
+	 
 	void turnOn() {
 		glUseProgram(ShaderProgramId);
 	}

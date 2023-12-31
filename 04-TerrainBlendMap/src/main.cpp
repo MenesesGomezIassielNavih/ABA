@@ -1,7 +1,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 //glew include
-#include <GL/glew.h>
+//#include <GL/glew.h>
+#include <glad.h>
 
 //std includes
 #include <string>
@@ -395,7 +396,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	cyborgAnimate.setShader(&shaderMulLighting);
 
 	//Mixamo 1
-	modelChicaRosaAnimate.loadModel("../models/Chica_Rosa/estatico_chica.fbx");
+	modelChicaRosaAnimate.loadModel("../models/Chica_Rosa/estatico_chica1.fbx");
 	modelChicaRosaAnimate.setShader(&shaderMulLighting);
 
 	//Mixamo

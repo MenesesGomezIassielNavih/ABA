@@ -219,6 +219,15 @@ std::vector<float> lamp2Orientation = {
 	21.37 + 90, -65.0 + 90
 };
 
+// Blending model unsorted
+std::map<std::string, glm::vec3> blendingUnsorted = {
+		{"aircraft", glm::vec3(10.0, 0.0, -17.5)},
+		{"lambo", glm::vec3(23.0, 0.0, 0.0)},
+		{"heli", glm::vec3(5.0, 10.0, -5.0)}
+		//{"fountain", glm::vec3(5.0, 0.0, -40.0)},
+		//{"fire", glm::vec3(0.0, 0.0, 7.0)}
+};
+
 double deltaTime;
 double currTime, lastTime;
 
@@ -997,11 +1006,11 @@ bool processInput(bool continueApplication) {
 		animationMayowIndex = 0;
 	}
 	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, 0.02));
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, 0.04));
 		animationMayowIndex = 0;
 	}
 	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.02));
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.04));
 		animationMayowIndex = 0;
 	}
 
@@ -1133,13 +1142,13 @@ void applicationLoop() {
 		 * Propiedades Luz direccional
 		 *******************************************/
 		shaderMulLighting.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
-		shaderMulLighting.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.05, 0.05, 0.05)));
+		shaderMulLighting.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.4, 0.4, 0.4)));
 		shaderMulLighting.setVectorFloat3("directionalLight.light.diffuse", glm::value_ptr(glm::vec3(0.3, 0.3, 0.3)));
 		shaderMulLighting.setVectorFloat3("directionalLight.light.specular", glm::value_ptr(glm::vec3(0.4, 0.4, 0.4)));
 		shaderMulLighting.setVectorFloat3("directionalLight.direction", glm::value_ptr(glm::vec3(-1.0, 0.0, 0.0)));
 
 		shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
-		shaderTerrain.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.05, 0.05, 0.05)));
+		shaderTerrain.setVectorFloat3("directionalLight.light.ambient", glm::value_ptr(glm::vec3(0.4, 0.4, 0.4)));
 		shaderTerrain.setVectorFloat3("directionalLight.light.diffuse", glm::value_ptr(glm::vec3(0.3, 0.3, 0.3)));
 		shaderTerrain.setVectorFloat3("directionalLight.light.specular", glm::value_ptr(glm::vec3(0.4, 0.4, 0.4)));
 		shaderTerrain.setVectorFloat3("directionalLight.direction", glm::value_ptr(glm::vec3(-1.0, 0.0, 0.0)));
@@ -1469,6 +1478,76 @@ void applicationLoop() {
 		skyboxSphere.render();
 		glCullFace(oldCullFaceMode);
 		glDepthFunc(oldDepthFuncMode);
+
+
+		
+		/**********
+		 * Update the position with alpha objects
+		 */
+		 // Update the aircraft
+		blendingUnsorted.find("aircraft")->second = glm::vec3(modelMatrixAircraft[3]);
+		// Update the lambo
+		blendingUnsorted.find("lambo")->second = glm::vec3(modelMatrixLambo[3]);
+		// Update the helicopter
+		blendingUnsorted.find("heli")->second = glm::vec3(modelMatrixHeli[3]);
+
+		/**********
+		 * Sorter with alpha objects
+		 */
+		std::map<float, std::pair<std::string, glm::vec3>> blendingSorted;
+		std::map<std::string, glm::vec3>::iterator itblend;
+		for (itblend = blendingUnsorted.begin(); itblend != blendingUnsorted.end(); itblend++) {
+			float distanceFromView = glm::length(camera->getPosition() - itblend->second);
+			blendingSorted[distanceFromView] = std::make_pair(itblend->first, itblend->second);
+		}
+
+		/**********
+		 * Render de las transparencias
+		 */
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_CULL_FACE);
+		for (std::map<float, std::pair<std::string, glm::vec3> >::reverse_iterator it = blendingSorted.rbegin(); it != blendingSorted.rend(); it++) {
+			if (it->second.first.compare("aircraft") == 0) {
+				// Render for the aircraft model
+				glm::mat4 modelMatrixAircraftBlend = glm::mat4(modelMatrixAircraft);
+				modelMatrixAircraftBlend[3][1] = terrain.getHeightTerrain(modelMatrixAircraftBlend[3][0], modelMatrixAircraftBlend[3][2]) + 2.0;
+				modelAircraft.render(modelMatrixAircraftBlend);
+			}
+			else if (it->second.first.compare("lambo") == 0) {
+				// Lambo car
+				glm::mat4 modelMatrixLamboBlend = glm::mat4(modelMatrixLambo);
+				modelMatrixLamboBlend[3][1] = terrain.getHeightTerrain(modelMatrixLamboBlend[3][0], modelMatrixLamboBlend[3][2]);
+				modelMatrixLamboBlend = glm::scale(modelMatrixLamboBlend, glm::vec3(1.3, 1.3, 1.3));
+				modelLambo.render(modelMatrixLamboBlend);
+				glActiveTexture(GL_TEXTURE0);
+				glm::mat4 modelMatrixLamboLeftDor = glm::mat4(modelMatrixLamboBlend);
+				modelMatrixLamboLeftDor = glm::translate(modelMatrixLamboLeftDor, glm::vec3(1.08676, 0.707316, 0.982601));
+				modelMatrixLamboLeftDor = glm::rotate(modelMatrixLamboLeftDor, glm::radians(dorRotCount), glm::vec3(1.0, 0, 0));
+				modelMatrixLamboLeftDor = glm::translate(modelMatrixLamboLeftDor, glm::vec3(-1.08676, -0.707316, -0.982601));
+				modelLamboLeftDor.render(modelMatrixLamboLeftDor);
+				modelLamboRightDor.render(modelMatrixLamboBlend);
+				modelLamboFrontLeftWheel.render(modelMatrixLamboBlend);
+				modelLamboFrontRightWheel.render(modelMatrixLamboBlend);
+				modelLamboRearLeftWheel.render(modelMatrixLamboBlend);
+				modelLamboRearRightWheel.render(modelMatrixLamboBlend);
+				// Se regresa el cull faces IMPORTANTE para las puertas
+			}
+			else if (it->second.first.compare("heli") == 0) {
+				// Helicopter
+				glm::mat4 modelMatrixHeliChasis = glm::mat4(modelMatrixHeli);
+				modelHeliChasis.render(modelMatrixHeliChasis);
+
+				glm::mat4 modelMatrixHeliHeli = glm::mat4(modelMatrixHeliChasis);
+				modelMatrixHeliHeli = glm::translate(modelMatrixHeliHeli, glm::vec3(0.0, 0.0, -0.249548));
+				modelMatrixHeliHeli = glm::rotate(modelMatrixHeliHeli, rotHelHelY, glm::vec3(0, 1, 0));
+				modelMatrixHeliHeli = glm::translate(modelMatrixHeliHeli, glm::vec3(0.0, 0.0, 0.249548));
+				modelHeliHeli.render(modelMatrixHeliHeli);
+			}
+			
+		}
+
+
 
 		/*******************************************
 		 * Creacion de colliders

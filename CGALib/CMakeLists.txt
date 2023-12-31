@@ -17,6 +17,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
           "../external/OpenAL/include"
           "../external/Freetype/include"
           "../external/freealut/include"
+          "../external/glad"
 
      )
      link_directories(
